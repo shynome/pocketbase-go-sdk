@@ -14,6 +14,7 @@ type Service[T any] struct {
 }
 
 func New[T any](bs *base.Service, collection string) *Service[T] {
+	bs.Client.SetPathParam("collection", collection)
 	return &Service[T]{
 		bs,
 		collection,
@@ -21,7 +22,7 @@ func New[T any](bs *base.Service, collection string) *Service[T] {
 }
 
 func (s *Service[T]) getReq() *resty.Request {
-	return s.Client.R().SetPathParam("collection", s.collection)
+	return s.Client.R()
 }
 
 type ListParams struct {
