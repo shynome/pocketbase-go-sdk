@@ -139,3 +139,28 @@ func (s *Service[T]) FullList(batch int, params *ListParams) (list []T, err erro
 	}
 	return
 }
+
+func (s *Service[T]) FirstListItem(params *ListParams) (record T, err error) {
+	if params == nil {
+		params = &ListParams{}
+	}
+	if params.PerPage == 0 {
+		params.PerPage = 1
+	}
+
+	result, err := s.List(params)
+	if err != nil {
+		return
+	}
+
+	if len(result.Items) < 1 {
+		err = &base.Message{
+			Code:    404,
+			Message: "The requested resource wasn't found.",
+		}
+		return
+	}
+	record = result.Items[0]
+
+	return
+}
