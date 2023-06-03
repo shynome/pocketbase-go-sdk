@@ -27,6 +27,7 @@ func New(endpoint string) *Service {
 		if err := json.Unmarshal(r.Body(), &msg); err != nil {
 			return err
 		}
+		msg.resp = r
 		return &msg
 	})
 	return &Service{
@@ -35,6 +36,7 @@ func New(endpoint string) *Service {
 }
 
 type Message struct {
+	resp    *resty.Response
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Data    *struct {
@@ -49,4 +51,8 @@ var _ error = (*Message)(nil)
 
 func (msg *Message) Error() string {
 	return fmt.Sprintf("code: %d, message: %s", msg.Code, msg.Message)
+}
+
+func (msg *Message) Response() *resty.Response {
+	return msg.resp
 }
