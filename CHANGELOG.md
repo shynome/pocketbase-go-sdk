@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.0.3] - 2023-06-04
+
+### Add
+
+- 添加 `client.SetAuthStore`, 手动设置 AuthStore. 这点和官方 sdk 不一样
+
 ## [0.0.2] - 2023-06-03
 
 ### Add
