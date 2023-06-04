@@ -3,6 +3,7 @@ package crud
 import (
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/shynome/pocketbase-go-sdk/services/base"
@@ -10,11 +11,14 @@ import (
 
 type Service[T any] struct {
 	*base.Service
-	collection string
+	Collection string
 }
 
 func New[T any](bs *base.Service, collection string) *Service[T] {
-	bs.Client.SetPathParam("collection", collection)
+	bs.Client.OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
+		r.URL = strings.Replace(r.URL, "/collections/-admins", "/admins", 1)
+		return nil
+	})
 	return &Service[T]{
 		bs,
 		collection,
@@ -71,7 +75,7 @@ func (s *Service[T]) List(params *ListParams) (result ListResult[T], err error) 
 	_, err = s.getReq().
 		SetQueryParamsFromValues(q).
 		SetResult(&result).
-		Get("/collections/{collection}/records")
+		Get(fmt.Sprintf("/collections/%s/records", s.Collection))
 	return
 }
 
@@ -80,7 +84,7 @@ func (s *Service[T]) Create(initBody func(req *resty.Request)) (result T, err er
 	initBody(req)
 	_, err = req.
 		SetResult(&result).
-		Post("/collections/{collection}/records")
+		Post(fmt.Sprintf("/collections/%s/records", s.Collection))
 	return
 }
 
@@ -90,7 +94,7 @@ func (s *Service[T]) Update(id string, initBody func(req *resty.Request)) (resul
 	_, err = req.
 		SetResult(&result).
 		SetPathParam("id", id).
-		Patch("/collections/{collection}/records/{id}")
+		Patch(fmt.Sprintf("/collections/%s/records/{id}", s.Collection))
 	return
 }
 
@@ -102,7 +106,7 @@ func (s *Service[T]) Delete(id string, params *url.Values) (result base.Message,
 		SetResult(&result).
 		SetQueryParamsFromValues(*params).
 		SetPathParam("id", id).
-		Delete("/collections/{collection}/records/{id}")
+		Delete(fmt.Sprintf("/collections/%s/records/{id}", s.Collection))
 	return
 }
 
@@ -114,7 +118,7 @@ func (s *Service[T]) One(id string, params *url.Values) (result T, err error) {
 		SetResult(&result).
 		SetQueryParamsFromValues(*params).
 		SetPathParam("id", id).
-		Get("/collections/{collection}/records/{id}")
+		Get(fmt.Sprintf("/collections/%s/records/{id}", s.Collection))
 	return
 }
 

@@ -3,6 +3,7 @@ package record
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"strings"
 	"sync"
@@ -106,7 +107,7 @@ func (s *Service[T]) ListAuthMethods(params *url.Values) (result AuthMethods, er
 	_, err = s.getReq().
 		SetQueryParamsFromValues(*params).
 		SetResult(&result).
-		Get("/collections/{collection}/auth-methods")
+		Get(fmt.Sprintf("/collections/%s/auth-methods", s.Collection))
 	return
 }
 
@@ -146,7 +147,7 @@ func (s *Service[T]) AuthWithPassword(identity, password string, params *RecordQ
 		SetBody(body).
 		SetQueryParamsFromValues(params.ToValues()).
 		SetResult(&result).
-		Post("/collections/{collection}/auth-with-password")
+		Post(fmt.Sprintf("/collections/%s/auth-with-password", s.Collection))
 	if err != nil {
 		return
 	}
@@ -168,7 +169,7 @@ func (s *Service[T]) AuthRefresh(params *RecordQueryParams) (result AuthResponse
 	_, err = s.getReq().
 		SetQueryParamsFromValues(params.ToValues()).
 		SetResult(&result).
-		Post("/collections/{collection}/auth-refresh")
+		Post(fmt.Sprintf("/collections/%s/auth-refresh", s.Collection))
 	if err != nil {
 		return
 	}
