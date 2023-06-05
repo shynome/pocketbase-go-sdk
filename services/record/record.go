@@ -32,7 +32,7 @@ func New[T any](bs *base.Service, collection string) (s *Service[T]) {
 		if err == nil {
 			return false
 		}
-		if r == nil || r.Request == nil {
+		if r == nil || r.Request == nil || r.StatusCode() != 403 {
 			return false
 		}
 
