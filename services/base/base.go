@@ -39,12 +39,7 @@ type Message struct {
 	resp    *resty.Response
 	Code    int    `json:"code"`
 	Message string `json:"message"`
-	Data    *struct {
-		Name *struct {
-			Code    string `json:"code"`
-			Message string `json:"message"`
-		} `json:"name,omitempty"`
-	} `json:"data,omitempty"`
+	Data    any    `json:"data,omitempty"`
 }
 
 var _ error = (*Message)(nil)
