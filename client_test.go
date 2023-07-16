@@ -1,15 +1,26 @@
 package pocketbase_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/lainio/err2/assert"
 	"github.com/lainio/err2/try"
 	"github.com/shynome/pocketbase-go-sdk"
+	test "github.com/shynome/pocketbase-go-sdk/internal/pocketbase"
 )
 
-var pb = pocketbase.New("http://127.0.0.1:8090")
+var pb *pocketbase.Client
+
+func TestMain(m *testing.M) {
+	cmd, addr := test.Start()
+	defer cmd.Process.Signal(os.Interrupt)
+
+	pb = pocketbase.New("http://" + addr)
+
+	m.Run()
+}
 
 func TestHealth(t *testing.T) {
 	resp := try.To1(pb.Health().Check())

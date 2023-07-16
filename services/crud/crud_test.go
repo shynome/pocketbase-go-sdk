@@ -2,16 +2,28 @@ package crud
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/lainio/err2/assert"
 	"github.com/lainio/err2/try"
+	"github.com/shynome/pocketbase-go-sdk/internal/pocketbase"
 	"github.com/shynome/pocketbase-go-sdk/services/base"
 )
 
-var testBS = base.New("http://127.0.0.1:8090")
-var testPublic = New[map[string]string](testBS, "public")
+var testBS *base.Service
+var testPublic *Service[map[string]string]
+
+func TestMain(m *testing.M) {
+	cmd, addr := pocketbase.Start()
+	defer cmd.Process.Signal(os.Interrupt)
+
+	testBS = base.New("http://" + addr)
+	testPublic = New[map[string]string](testBS, "public")
+
+	m.Run()
+}
 
 func TestPublic(t *testing.T) {
 	r, err := testPublic.Create(func(req *resty.Request) {

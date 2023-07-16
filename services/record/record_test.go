@@ -1,17 +1,32 @@
 package record
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"os"
 	"testing"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/lainio/err2/assert"
 	"github.com/lainio/err2/try"
+	"github.com/shynome/pocketbase-go-sdk/internal/pocketbase"
 	"github.com/shynome/pocketbase-go-sdk/services/base"
 )
 
-var testBS = base.New("http://127.0.0.1:8090")
-var testUser = New[TestUser](testBS, "users")
+var testBS *base.Service
+var testUser *Service[TestUser]
+
+func TestMain(m *testing.M) {
+	cmd, addr := pocketbase.Start()
+	defer cmd.Process.Signal(os.Interrupt)
+
+	testBS = base.New("http://" + addr)
+	testUser = New[TestUser](testBS, "users")
+
+	m.Run()
+}
 
 type TestUser struct {
 	UserBase
@@ -29,6 +44,64 @@ func TestAuth(t *testing.T) {
 	assert.Equal(u.Name, "test2")
 	resp2 := try.To1(testUser.AuthRefresh(nil))
 	t.Log(resp2)
+}
+
+func TestAuthWithExpired(t *testing.T) {
+	resp := try.To1(testUser.AuthWithPassword("test", "testtest", nil))
+	assert.Equal(resp.Record.Username, "test")
+
+	time.Sleep(3 * time.Second)
+	u := try.To1(testUser.Update(resp.Record.ID, func(req *resty.Request) {
+		req.SetBody(map[string]string{
+			"name": "test2",
+		})
+	}))
+	assert.Equal(u.Name, "test2")
+
+	collecter := NewCollectLogger()
+	testUser.Client.SetLogger(collecter)
+
+	time.Sleep(3 * time.Second)
+	u = try.To1(testUser.Update(resp.Record.ID, func(req *resty.Request) {
+		req.SetBody(map[string]string{
+			"name": "test2",
+		})
+	}))
+	assert.Equal(u.Name, "test2")
+
+	assert.Equal(collecter.err.String(), "code: 404, message: The requested resource wasn't found., Attempt 1")
+
+	resp2 := try.To1(testUser.AuthRefresh(nil))
+	t.Log(resp2)
+}
+
+type collectLogger struct {
+	debug *bytes.Buffer
+	err   *bytes.Buffer
+	warn  *bytes.Buffer
+}
+
+var _ resty.Logger = (*collectLogger)(nil)
+
+func NewCollectLogger() *collectLogger {
+	return &collectLogger{
+		debug: &bytes.Buffer{},
+		err:   &bytes.Buffer{},
+		warn:  &bytes.Buffer{},
+	}
+}
+
+func (logger *collectLogger) Errorf(format string, v ...interface{}) {
+	s := fmt.Sprintf(format, v...)
+	logger.err.WriteString(s)
+}
+func (logger *collectLogger) Warnf(format string, v ...interface{}) {
+	s := fmt.Sprintf(format, v...)
+	logger.warn.WriteString(s)
+}
+func (logger *collectLogger) Debugf(format string, v ...interface{}) {
+	s := fmt.Sprintf(format, v...)
+	logger.debug.WriteString(s)
 }
 
 func TestDecodeToken(t *testing.T) {

@@ -32,7 +32,13 @@ func New[T any](bs *base.Service, collection string) (s *Service[T]) {
 		if err == nil {
 			return false
 		}
-		if r == nil || r.Request == nil || r.StatusCode() != 403 {
+		if r == nil || r.Request == nil {
+			return false
+		}
+		switch r.StatusCode() {
+		case 401: // token 已过期
+		case 404: // token 过期也会触发 404
+		default:
 			return false
 		}
 
