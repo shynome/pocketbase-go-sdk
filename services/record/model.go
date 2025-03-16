@@ -10,8 +10,10 @@ type Base struct {
 
 type UserBase struct {
 	Base
-	Username        string `json:"username"`
 	Email           string `json:"email"`
 	EmailVisibility bool   `json:"emailVisibility"`
 	Verified        bool   `json:"verified"`
+
+	// Deprecated: after v0.23.0 username is remove, email is the default unique feild
+	Username string `json:"username"`
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/lainio/err2/assert"
@@ -51,7 +52,7 @@ func TestPublic(t *testing.T) {
 
 	_, err = testPublic.One(r["id"], nil)
 	notFound := err.(*base.Message)
-	assert.Equal(notFound.Code, 404)
+	assert.Equal(notFound.Status, 404)
 }
 
 func TestFullList(t *testing.T) {
@@ -71,6 +72,7 @@ func TestFullList(t *testing.T) {
 			req.SetBody(item)
 		}))
 		items = append(items, r["id"])
+		time.Sleep(time.Second)
 	}
 	filter := fmt.Sprintf("id='%s' || id='%s' || id='%s'", items[0], items[1], items[2])
 	ll := try.To1(testPublic.FullList(1, &ListParams{

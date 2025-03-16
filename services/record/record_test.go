@@ -34,8 +34,8 @@ type TestUser struct {
 }
 
 func TestAuth(t *testing.T) {
-	resp := try.To1(testUser.AuthWithPassword("test", "testtest", nil))
-	assert.Equal(resp.Record.Username, "test")
+	resp := try.To1(testUser.AuthWithPassword("test@test.invaild", "testtest", nil))
+	assert.Equal(resp.Record.Email, "test@test.invaild")
 	u := try.To1(testUser.Update(resp.Record.ID, func(req *resty.Request) {
 		req.SetBody(map[string]string{
 			"name": "test2",
@@ -47,10 +47,10 @@ func TestAuth(t *testing.T) {
 }
 
 func TestAuthWithExpired(t *testing.T) {
-	resp := try.To1(testUser.AuthWithPassword("test", "testtest", nil))
-	assert.Equal(resp.Record.Username, "test")
+	resp := try.To1(testUser.AuthWithPassword("test@test.invaild", "testtest", nil))
+	assert.Equal(resp.Record.Email, "test@test.invaild")
 
-	time.Sleep(3 * time.Second)
+	time.Sleep(6 * time.Second)
 	u := try.To1(testUser.Update(resp.Record.ID, func(req *resty.Request) {
 		req.SetBody(map[string]string{
 			"name": "test2",
@@ -61,7 +61,7 @@ func TestAuthWithExpired(t *testing.T) {
 	collecter := NewCollectLogger()
 	testUser.Client.SetLogger(collecter)
 
-	time.Sleep(3 * time.Second)
+	time.Sleep(6 * time.Second)
 	u = try.To1(testUser.Update(resp.Record.ID, func(req *resty.Request) {
 		req.SetBody(map[string]string{
 			"name": "test2",
@@ -69,7 +69,7 @@ func TestAuthWithExpired(t *testing.T) {
 	}))
 	assert.Equal(u.Name, "test2")
 
-	assert.Equal(collecter.err.String(), "code: 404, message: The requested resource wasn't found., Attempt 1")
+	assert.Equal(collecter.warn.String(), "status: 404, message: The requested resource wasn't found., Attempt 1")
 
 	resp2 := try.To1(testUser.AuthRefresh(nil))
 	t.Log(resp2)

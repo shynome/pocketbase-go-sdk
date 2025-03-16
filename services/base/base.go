@@ -37,14 +37,20 @@ func New(endpoint string) *Service {
 
 type Message struct {
 	resp    *resty.Response
-	Code    int    `json:"code"`
+	Status  int    `json:"status"`
 	Message string `json:"message"`
 	Data    any    `json:"data,omitempty"`
+
+	// Deprecated: after v0.23.0 replaced with status
+	Code int `json:"code"`
 }
 
 var _ error = (*Message)(nil)
 
 func (msg *Message) Error() string {
+	if msg.Status != 0 {
+		return fmt.Sprintf("status: %d, message: %s", msg.Status, msg.Message)
+	}
 	return fmt.Sprintf("code: %d, message: %s", msg.Code, msg.Message)
 }
 

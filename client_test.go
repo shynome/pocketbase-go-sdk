@@ -34,14 +34,19 @@ func TestCollection(t *testing.T) {
 			"name": "test",
 		})
 	}))
-	defer collection.Delete(r["id"], nil)
+	defer func() {
+		_, err := collection.Delete(r["id"], nil)
+		if err != nil {
+			t.Error(err)
+		}
+	}()
 	result := try.To1(collection.List(nil))
 	assert.NotEqual(len(result.Items), 0)
 }
 
 func TestAuth(t *testing.T) {
 	collection := pocketbase.NewCollection[map[string]any](pb, "users")
-	try.To1(collection.AuthWithPassword("test", "testtest", nil))
+	try.To1(collection.AuthWithPassword("test@test.invaild", "testtest", nil))
 	result := try.To1(collection.List(nil))
 	assert.Equal(len(result.Items), 1)
 }
