@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.0] - Unrelease
+
+- [ ] 实现 Subscribe (先放一放, 因为项目方案变成了不需要 Subscribe 的解决方案)
+
 ## [1.1.0] - 2023-07-16
 
 - 兼容 pb v0.23
