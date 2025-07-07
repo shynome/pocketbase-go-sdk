@@ -4,11 +4,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/lainio/err2/assert"
 	"github.com/lainio/err2/try"
 	"github.com/shynome/pocketbase-go-sdk"
 	test "github.com/shynome/pocketbase-go-sdk/internal/pocketbase"
+	"resty.dev/v3"
 )
 
 var pb *pocketbase.Client

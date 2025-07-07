@@ -5,9 +5,9 @@ go 1.23.0
 toolchain go1.24.0
 
 require (
-	github.com/go-resty/resty/v2 v2.16.5
 	github.com/lainio/err2 v0.9.0
 	github.com/pocketbase/pocketbase v0.26.0
+	resty.dev/v3 v3.0.0-beta.3
 )
 
 require (

@@ -1,12 +1,11 @@
 package base
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
-	"github.com/go-resty/resty/v2"
+	"resty.dev/v3"
 )
 
 type Service struct {
@@ -18,16 +17,22 @@ func New(endpoint string) *Service {
 	endpoint = endpoint + "/api"
 	client := resty.New().
 		SetBaseURL(endpoint).
-		SetTimeout(10 * time.Second)
-	client.OnAfterResponse(func(c *resty.Client, r *resty.Response) error {
-		if !strings.HasPrefix(r.Status(), "4") {
+		SetTimeout(10 * time.Second).
+		SetError(&Message{})
+	client.AddResponseMiddleware(func(c *resty.Client, r *resty.Response) error {
+		if !r.IsError() {
 			return nil
 		}
-		var msg Message
-		if err := json.Unmarshal(r.Body(), &msg); err != nil {
-			return err
+		if msg, ok := r.Error().(*Message); ok {
+			msg.resp = r
+			return msg
 		}
-		msg.resp = r
+		var msg = Message{
+			resp:    r,
+			Status:  r.StatusCode(),
+			Code:    r.StatusCode(),
+			Message: r.String(),
+		}
 		return &msg
 	})
 	return &Service{

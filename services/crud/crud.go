@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/shynome/pocketbase-go-sdk/services/base"
+	"resty.dev/v3"
 )
 
 type Service[T any] struct {
@@ -15,7 +15,7 @@ type Service[T any] struct {
 }
 
 func New[T any](bs *base.Service, collection string) *Service[T] {
-	bs.Client.OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
+	bs.Client.AddRequestMiddleware(func(c *resty.Client, r *resty.Request) error {
 		r.URL = strings.Replace(r.URL, "/collections/-admins", "/admins", 1)
 		return nil
 	})

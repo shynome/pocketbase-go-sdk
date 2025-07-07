@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/shynome/pocketbase-go-sdk/services/base"
 	"github.com/shynome/pocketbase-go-sdk/services/crud"
+	"resty.dev/v3"
 )
 
 type Service[T any] struct {
@@ -27,8 +27,8 @@ func New[T any](bs *base.Service, collection string) (s *Service[T]) {
 		locker:  &sync.Mutex{},
 	}
 
-	s.Client.SetRetryCount(1)
-	s.Client.AddRetryCondition(func(r *resty.Response, err error) bool {
+	s.Client.SetRetryCount(1).SetAllowNonIdempotentRetry(true)
+	s.Client.AddRetryConditions(func(r *resty.Response, err error) bool {
 		if err == nil {
 			return false
 		}
@@ -45,7 +45,7 @@ func New[T any](bs *base.Service, collection string) (s *Service[T]) {
 		s.locker.Lock()
 		defer s.locker.Unlock()
 
-		token := s.Client.Token
+		token := s.Client.AuthToken()
 		if token == "" {
 			return false
 		}
@@ -74,6 +74,7 @@ func New[T any](bs *base.Service, collection string) (s *Service[T]) {
 		if err := s.login(); err != nil { // login 失败的话不要重试
 			return false
 		}
+		r.Request.SetAuthToken(bs.Client.AuthToken())
 		return true
 	})
 
