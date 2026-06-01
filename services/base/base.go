@@ -1,6 +1,7 @@
 package base
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -42,9 +43,9 @@ func New(endpoint string) *Service {
 
 type Message struct {
 	resp    *resty.Response
-	Status  int    `json:"status"`
-	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
+	Status  int             `json:"status"`
+	Message string          `json:"message"`
+	Data    json.RawMessage `json:"data,omitempty"`
 
 	// Deprecated: after v0.23.0 replaced with status
 	Code int `json:"code"`
