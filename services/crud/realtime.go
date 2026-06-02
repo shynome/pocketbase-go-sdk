@@ -15,15 +15,7 @@ import (
 )
 
 type SubscribeParams struct {
-	url.Values
-}
-
-func (params *SubscribeParams) ToValues() url.Values {
-	if params.Values == nil {
-		params.Values = url.Values{}
-	}
-	q := params.Values
-	return q
+	Query map[string]any `json:"query,omitempty"`
 }
 
 type Subscription[T any] struct {
@@ -36,7 +28,12 @@ func (s *Service[T]) Subscribe(topic string, params *SubscribeParams, callback f
 	if params == nil {
 		params = &SubscribeParams{}
 	}
-	q := params.ToValues()
+	opts, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+	topicOpts := url.QueryEscape(string(opts))
+	topic = topic + "?options=" + topicOpts
 	ctx := context.Background()
 	ctx, cause := context.WithCancelCause(ctx)
 	defer func() {
@@ -63,7 +60,6 @@ func (s *Service[T]) Subscribe(topic string, params *SubscribeParams, callback f
 		_, err = s.Send(api, func(req *resty.Request) {
 			req.
 				SetMethod(http.MethodPost).
-				SetQueryParamsFromValues(q).
 				SetBody(body)
 		})
 		return err
