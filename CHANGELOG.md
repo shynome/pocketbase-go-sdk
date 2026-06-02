@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.4] - 2026-06-02
+
+- 修复: 移除 debug 标识
+
 ## [1.3.3] - 2026-06-02
 
 - 修复: `Subscription.Record` 对应的 json 字段是 `record` 而不是 `data`
