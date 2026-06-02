@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.1] - 2026-06-02
+
+- 修复: pocketbase 使用 event type 来区分订阅 topic, 不能使用 `c.SubscribeMessages` 而是要用 `c.SubscribeToAll`
+
 ## [1.3.0] - 2026-06-02
 
 - 添加: 实现 Subscribe
