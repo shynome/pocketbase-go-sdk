@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.3] - 2026-06-02
+
+- 修复: `Subscription.Record` 对应的 json 字段是 `record` 而不是 `data`
+
 ## [1.3.2] - 2026-06-02
 
 - 修复: 使用 `c.SubscribeToAll` 会导致 `PB_CONNECT` 事件也被发送回调, 转而使用 `c.SubscribeEvent(topic)`
