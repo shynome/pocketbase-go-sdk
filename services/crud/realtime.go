@@ -28,7 +28,7 @@ func (params *SubscribeParams) ToValues() url.Values {
 
 type Subscription[T any] struct {
 	Action string `json:"action"`
-	Record T      `json:"data"`
+	Record T      `json:"record"`
 }
 
 func (s *Service[T]) Subscribe(topic string, params *SubscribeParams, callback func(data *Subscription[T])) (_ func(), err error) {
