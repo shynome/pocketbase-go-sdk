@@ -55,14 +55,13 @@ func (s *Service[T]) Subscribe(topic string, params *SubscribeParams, callback f
 		if err := json.Unmarshal(d, &cinfo); err != nil {
 			return err
 		}
+		topic := fmt.Sprintf("%s/%s", s.Collection, topic)
 		body := map[string]any{
-			"clientId": cinfo.ClientId,
-			"subscriptions": []string{
-				fmt.Sprintf("%s/%s", s.Collection, topic),
-			},
+			"clientId":      cinfo.ClientId,
+			"subscriptions": []string{topic},
 		}
 		_, err = s.Send(api, func(req *resty.Request) {
-			req.
+			req.SetDebug(true).
 				SetMethod(http.MethodPost).
 				SetQueryParamsFromValues(q).
 				SetBody(body)
@@ -92,7 +91,7 @@ func (s *Service[T]) Subscribe(topic string, params *SubscribeParams, callback f
 			})
 			defer unsub()
 		}
-		unsub := c.SubscribeMessages(func(e sse.Event) {
+		unsub := c.SubscribeToAll(func(e sse.Event) {
 			var d Subscription[T]
 			err := json.Unmarshal([]byte(e.Data), &d)
 			if err != nil {
