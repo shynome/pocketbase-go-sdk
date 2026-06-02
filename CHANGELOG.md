@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.2] - 2026-06-02
+
+- 修复: 使用 `c.SubscribeToAll` 会导致 `PB_CONNECT` 事件也被发送回调, 转而使用 `c.SubscribeEvent(topic)`
+
 ## [1.3.1] - 2026-06-02
 
 - 修复: pocketbase 使用 event type 来区分订阅 topic, 不能使用 `c.SubscribeMessages` 而是要用 `c.SubscribeToAll`
