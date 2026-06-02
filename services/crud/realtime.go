@@ -32,6 +32,7 @@ type Subscription[T any] struct {
 }
 
 func (s *Service[T]) Subscribe(topic string, params *SubscribeParams, callback func(data *Subscription[T])) (_ func(), err error) {
+	topic = fmt.Sprintf("%s/%s", s.Collection, topic)
 	if params == nil {
 		params = &SubscribeParams{}
 	}
@@ -55,7 +56,6 @@ func (s *Service[T]) Subscribe(topic string, params *SubscribeParams, callback f
 		if err := json.Unmarshal(d, &cinfo); err != nil {
 			return err
 		}
-		topic := fmt.Sprintf("%s/%s", s.Collection, topic)
 		body := map[string]any{
 			"clientId":      cinfo.ClientId,
 			"subscriptions": []string{topic},
@@ -91,7 +91,7 @@ func (s *Service[T]) Subscribe(topic string, params *SubscribeParams, callback f
 			})
 			defer unsub()
 		}
-		unsub := c.SubscribeToAll(func(e sse.Event) {
+		unsub := c.SubscribeEvent(topic, func(e sse.Event) {
 			var d Subscription[T]
 			err := json.Unmarshal([]byte(e.Data), &d)
 			if err != nil {
