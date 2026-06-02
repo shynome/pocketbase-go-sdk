@@ -61,7 +61,7 @@ func (s *Service[T]) Subscribe(topic string, params *SubscribeParams, callback f
 			"subscriptions": []string{topic},
 		}
 		_, err = s.Send(api, func(req *resty.Request) {
-			req.SetDebug(true).
+			req.
 				SetMethod(http.MethodPost).
 				SetQueryParamsFromValues(q).
 				SetBody(body)
