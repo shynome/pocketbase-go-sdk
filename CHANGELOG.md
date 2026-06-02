@@ -1,8 +1,8 @@
 # Changelog
 
-## [1.3.0] - Unrelease
+## [1.3.0] - 2026-06-02
 
-- [ ] 实现 Subscribe (先放一放, 因为项目方案变成了不需要 Subscribe 的解决方案)
+- 添加: 实现 Subscribe
 
 ## [1.2.0] - 2026-06-02
 
